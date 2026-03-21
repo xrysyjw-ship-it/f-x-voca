@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F(X)Voca — Dashboard</title>
+<style>
+/* ─────────────────────────────────────
+   F(X)Voca  공통 템플릿 스타일
+   단어별 페이지 모두 이 CSS 기반으로 작성
+───────────────────────────────────── */
+
+:root {
+  /* 배경 / 표면 */
+  --bg:        #f5f2ed;
+  --surface:   #ffffff;
+  --surface2:  #ede9e2;
+  --border:    #cbc5b8;
+
+  /* 텍스트 */
+  --text:      #1b1916;
+  --muted:     #58534e;
+  --label:     #8a8278;
+
+  /* 강조색 — 이미지 3단계 */
+  --c1:        #8b5500;   /* 중심이미지 */
+  --c1bg:      #fef4df;
+  --c2:        #1050a0;   /* 유추이미지 */
+  --c2bg:      #e4eef9;
+  --c3:        #1a7530;   /* 확장이미지 */
+  --c3bg:      #e4f4e8;
+
+  /* 다크 박스 */
+  --dk:        #1b1916;
+  --dk-text:   #f5f2ed;
+  --dk-gold:   #f0dba8;
+  --dk-muted:  #9e9484;
+
+  /* 폰트 */
+  --font: 'KoPub돋움체', 'KoPubDotum', 'KoPub Dotum', 'Malgun Gothic', sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-weight: 700;
+  min-height: 100vh;
+  padding: 0 0 80px;
+}
+
+/* 배경 그리드 */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,0,0,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.035) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none; z-index: 0;
+}
+
+.wrap { max-width: 960px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+
+/* ── 헤더 ── */
+.page-header {
+  text-align: center;
+  padding: 52px 0 40px;
+  border-bottom: 2px solid var(--text);
+  margin-bottom: 56px;
+}
+.pg-series { font-size: 10px; letter-spacing: 5px; color: var(--label); text-transform: uppercase; margin-bottom: 18px; }
+.pg-word   { font-size: 78px; color: var(--text); line-height: 1; letter-spacing: -3px; margin-bottom: 12px; }
+.pg-ko     { font-size: 20px; color: var(--muted); margin-bottom: 6px; }
+.pg-sub    { font-size: 11px; color: var(--label); letter-spacing: 2px; }
+
+/* ── 공식 박스 (다크) ── */
+.formula-block {
+  background: var(--dk); color: var(--dk-text);
+  padding: 36px 44px; margin-bottom: 56px;
+  text-align: center; position: relative;
+}
+.formula-block .tag {
+  position: absolute; top: -10px; left: 22px;
+  background: var(--bg); padding: 0 10px;
+  font-size: 9px; letter-spacing: 4px; color: var(--label);
+  border: 1px solid var(--border);
+}
+.f-main   { font-size: 20px; color: var(--dk-gold); margin-bottom: 12px; }
+.f-expand { font-size: 12px; color: var(--dk-muted); margin-bottom: 22px; line-height: 1.8; }
+.f-core   { display: inline-block; border: 1px solid #38342e; padding: 12px 26px; background: #242018; }
+.f-core-lbl { font-size: 9px; letter-spacing: 4px; color: #706858; display: block; margin-bottom: 6px; }
+.f-core-val { font-size: 16px; color: var(--dk-gold); }
+
+/* ── 섹션 공통 ── */
+.sec { margin-bottom: 56px; }
+.sec-title {
+  font-size: 9px; letter-spacing: 5px; color: var(--label);
+  text-transform: uppercase; padding-bottom: 10px;
+  border-bottom: 1px solid var(--border); margin-bottom: 22px;
+}
+
+/* ── 어원 분해 ── */
+.ety-row { display: grid; grid-template-columns: 1fr 44px 1fr 44px 1fr; align-items: center; }
+.ety-part { background: var(--surface); border: 1px solid var(--border); padding: 22px 16px; text-align: center; }
+.ety-en   { font-size: 28px; color: var(--text); margin-bottom: 8px; }
+.ety-ko   { font-size: 12px; color: var(--text); margin-bottom: 5px; }
+.ety-note { font-size: 10px; color: var(--muted); line-height: 1.6; }
+.ety-op   { text-align: center; font-size: 22px; color: var(--muted); }
+
+/* ══════════════════════════════════════
+   이미지 3단계 카드 + 한국어 변천 띠
+══════════════════════════════════════ */
+
+/* 카드 3열 */
+.img-trio {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  border: 1px solid var(--border);
+  margin-bottom: 0;   /* 바로 아래에 한글 변천 띠가 붙음 */
+}
+.img-card { border-right: 1px solid var(--border); overflow: hidden; display: flex; flex-direction: column; }
+.img-card:last-child { border-right: none; }
+
+/* 카드 헤더 */
+.ic-head  { padding: 12px 18px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+.img-card[data-t="core"]   .ic-head { background: var(--c1bg); }
+.img-card[data-t="analog"] .ic-head { background: var(--c2bg); }
+.img-card[data-t="extend"] .ic-head { background: var(--c3bg); }
+
+.ic-badge { font-size: 8px; letter-spacing: 2px; padding: 3px 8px; color: #fff; text-transform: uppercase; }
+.img-card[data-t="core"]   .ic-badge { background: var(--c1); }
+.img-card[data-t="analog"] .ic-badge { background: var(--c2); }
+.img-card[data-t="extend"] .ic-badge { background: var(--c3); }
+
+.ic-ko { font-size: 12px; color: var(--text); }
+
+/* 카드 바디 */
+.ic-body  { padding: 20px 18px; background: var(--surface); flex: 1; display: flex; flex-direction: column; }
+.ic-icon  { font-size: 34px; margin-bottom: 12px; }
+.ic-era   { font-size: 9px; letter-spacing: 3px; color: var(--label); margin-bottom: 7px; }
+.ic-name  { font-size: 17px; margin-bottom: 10px; line-height: 1.3; }
+.img-card[data-t="core"]   .ic-name { color: var(--c1); }
+.img-card[data-t="analog"] .ic-name { color: var(--c2); }
+.img-card[data-t="extend"] .ic-name { color: var(--c3); }
+
+.ic-desc  { font-size: 11px; color: var(--muted); line-height: 1.7; margin-bottom: 14px; flex: 1; }
+.ic-fml   { font-size: 10px; color: var(--label); border-top: 1px solid var(--border); padding-top: 10px; line-height: 1.6; }
+
+/* ── 한국어 의미 변천 띠 ── */
+.ko-flow {
+  border: 1px solid var(--border);
+  border-top: none;          /* 카드와 seamless */
+  background: var(--dk);
+  display: grid; grid-template-columns: repeat(3,1fr);
+  margin-bottom: 56px;
+}
+
+.ko-cell {
+  padding: 18px 20px 20px;
+  border-right: 1px solid #333028;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  position: relative;
+}
+.ko-cell:last-child { border-right: none; }
+
+/* 위쪽 연결 삼각형 */
+.ko-cell::before {
+  content: '';
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+}
+.ko-cell[data-t="core"]::before   { border-top: 10px solid var(--c1bg); }
+.ko-cell[data-t="analog"]::before { border-top: 10px solid var(--c2bg); }
+.ko-cell[data-t="extend"]::before { border-top: 10px solid var(--c3bg); }
+
+.ko-lbl {
+  font-size: 9px; letter-spacing: 3px; margin-bottom: 10px; margin-top: 4px;
+  color: var(--dk-muted); text-transform: uppercase;
+}
+.ko-phrase {
+  font-size: 18px; line-height: 1.45; margin-bottom: 10px;
+}
+.ko-cell[data-t="core"]   .ko-phrase { color: #f0c060; }
+.ko-cell[data-t="analog"] .ko-phrase { color: #80b8f0; }
+.ko-cell[data-t="extend"] .ko-phrase { color: #80dba0; }
+
+.ko-sub { font-size: 11px; color: var(--dk-muted); line-height: 1.6; }
+
+/* 변천 화살표 오버레이 */
+.ko-flow-wrap { position: relative; }
+.ko-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  font-size: 22px; color: #5a5040; z-index: 2; pointer-events: none;
+}
+.ko-arrow.a1 { left: calc(33.33% - 11px); }
+.ko-arrow.a2 { left: calc(66.66% - 11px); }
+
+/* ── 공통 패턴 (다크) ── */
+.pattern-block {
+  background: var(--dk); color: var(--dk-text);
+  padding: 36px 40px; margin-bottom: 56px;
+  text-align: center; position: relative;
+}
+.pattern-block .tag {
+  position: absolute; top: -10px; left: 22px;
+  background: var(--bg); padding: 0 10px;
+  font-size: 9px; letter-spacing: 4px; color: var(--label);
+  border: 1px solid var(--border);
+}
+.pt-text { font-size: 19px; color: var(--dk-gold); line-height: 1.65; margin-bottom: 16px; }
+.pt-note { font-size: 12px; color: var(--dk-muted); line-height: 1.85; }
+
+/* ── 컨텍스트 카드 ── */
+.ctx-grid { display: flex; flex-direction: column; gap: 14px; }
+.ctx-card {
+  display: grid; grid-template-columns: 200px 1fr;
+  border: 1px solid var(--border); background: var(--surface);
+  overflow: hidden; position: relative; transition: box-shadow 0.18s;
+}
+.ctx-card:hover { box-shadow: 3px 3px 0 var(--cc); }
+.ctx-card[data-e="1"] { --cc: var(--c1); }
+.ctx-card[data-e="2"] { --cc: var(--c2); }
+.ctx-card[data-e="3"] { --cc: var(--c3); }
+.ctx-card::before { content:''; position:absolute; left:0;top:0;bottom:0; width:4px; background:var(--cc); }
+
+.ctx-left {
+  padding: 20px 16px 20px 22px;
+  border-right: 1px solid var(--border);
+  background: var(--surface2);
+  display: flex; flex-direction: column; justify-content: center;
+}
+.ctx-tag  { font-size: 9px; letter-spacing:3px; color: var(--cc); margin-bottom:6px; text-transform:uppercase; }
+.ctx-name { font-size: 14px; color: var(--text); margin-bottom:5px; line-height:1.3; }
+.ctx-sub  { font-size: 11px; color: var(--muted); }
+
+.ctx-right { padding: 20px 26px; }
+.ctx-fml   { font-size: 11px; color: var(--muted); margin-bottom:9px; }
+.ctx-fml span { color: var(--cc); }
+.ctx-rlbl  { font-size: 9px; letter-spacing:3px; color: var(--label); margin-bottom:4px; }
+.ctx-rval  { font-size: 21px; color: var(--cc); margin-bottom:7px; }
+.ctx-rdesc { font-size: 12px; color: var(--muted); line-height:1.7; }
+
+/* ── 구별개념 ── */
+.dis-grid {
+  display: grid; grid-template-columns: repeat(2,1fr);
+  border: 1px solid var(--border);
+}
+.dis-item {
+  padding: 20px 22px; background: var(--surface);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.dis-item:nth-child(even)      { border-right: none; }
+.dis-item:nth-last-child(-n+2) { border-bottom: none; }
+.dis-vs   { font-size:9px; letter-spacing:2px; color:var(--label); margin-bottom:4px; }
+.dis-en   { font-size:20px; color:var(--text); margin-bottom:3px; }
+.dis-ko   { font-size:12px; color:var(--muted); margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid var(--border); }
+.dis-diff { font-size:11px; color:var(--muted); line-height:1.7; }
+
+/* ── 활용 유형 ── */
+.use-grid {
+  display: grid; grid-template-columns: repeat(2,1fr);
+  border: 1px solid var(--border);
+}
+.use-item {
+  padding: 20px 22px; background: var(--surface);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.use-item:nth-child(even)      { border-right: none; }
+.use-item:nth-last-child(-n+2) { border-bottom: none; }
+.use-num  { font-size:10px; letter-spacing:2px; color:var(--label); margin-bottom:7px; }
+.use-ko   { font-size:14px; color:var(--text); margin-bottom:3px; }
+.use-en   { font-size:10px; color:var(--label); margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid var(--border); font-style:italic; }
+.use-desc { font-size:11px; color:var(--muted); line-height:1.7; }
+
+/* ── 푸터 ── */
+.page-footer {
+  text-align:center; padding:28px 0;
+  border-top: 2px solid var(--text);
+  font-size:10px; color:var(--label); letter-spacing:4px;
+  margin-top: 0;
+}
+
+/* ── 애니메이션 ── */
+@keyframes up { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:none} }
+.wrap > * { animation: up 0.5s ease both; }
+.wrap > *:nth-child(1){animation-delay:.04s}
+.wrap > *:nth-child(2){animation-delay:.10s}
+.wrap > *:nth-child(3){animation-delay:.17s}
+.wrap > *:nth-child(4){animation-delay:.24s}
+.wrap > *:nth-child(5){animation-delay:.31s}
+.wrap > *:nth-child(6){animation-delay:.38s}
+.wrap > *:nth-child(7){animation-delay:.45s}
+.wrap > *:nth-child(8){animation-delay:.52s}
+.wrap > *:nth-child(9){animation-delay:.59s}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ① 헤더 -->
+<div class="page-header">
+  <div class="pg-series">F(X)Voca — Vocabulary as Function</div>
+  <div class="pg-word">Dashboard</div>
+  <div class="pg-ko">대시보드</div>
+  <div class="pg-sub">n. &nbsp;·&nbsp; 영어권 일반 어휘 &nbsp;·&nbsp; 19세기 마차 문화 기원</div>
+</div>
+
+<!-- ② 공식 -->
+<div class="formula-block">
+  <div class="tag">F(X)VOCA FORMULA</div>
+  <div class="f-main">F(X) = f(사회·문화 맥락) × X(핵심 이미지)</div>
+  <div class="f-expand">
+    F(Dashboard) = f(마차문화 / 자동차문화 / IT·경영문화)<br>
+    × X(운동하는 시스템 앞에 놓인 직관 파악 판)
+  </div>
+  <div class="f-core">
+    <span class="f-core-lbl">X — CORE IMAGE</span>
+    <span class="f-core-val">운동하는 시스템 앞에 놓인 직관 파악 판(板)</span>
+  </div>
+</div>
+
+<!-- ③ 어원 분해 -->
+<div class="sec">
+  <div class="sec-title">[ 0 ] 개념 요소 — 어원 분해 Etymology</div>
+  <div class="ety-row">
+    <div class="ety-part">
+      <div class="ety-en">Dash</div>
+      <div class="ety-ko">튀기다 · 내던지다 · 돌진</div>
+      <div class="ety-note">말 발굽이 진흙·돌을<br>튀겨 오르게 하는 동작</div>
+    </div>
+    <div class="ety-op">+</div>
+    <div class="ety-part">
+      <div class="ety-en">Board</div>
+      <div class="ety-ko">판 · 평평한 면 · 표면</div>
+      <div class="ety-note">무언가를 막거나<br>보여주는 평평한 판</div>
+    </div>
+    <div class="ety-op">=</div>
+    <div class="ety-part" style="border-left:3px solid var(--c1);">
+      <div class="ety-en" style="color:var(--c1);">Dashboard</div>
+      <div class="ety-ko">튀기는 것을 막는 판</div>
+      <div class="ety-note">→ 시스템 앞에서<br>상태를 직관 파악하는 면</div>
+    </div>
+  </div>
+</div>
+
+<!-- ④ 이미지 3단계 + 한국어 변천 띠 -->
+<div class="sec">
+  <div class="sec-title">[ 1 ] 이미지 구조 — 중심이미지 · 유추이미지 · 확장이미지</div>
+
+  <!-- 카드 3열 -->
+  <div class="img-trio">
+    <!-- 중심 -->
+    <div class="img-card" data-t="core">
+      <div class="ic-head">
+        <span class="ic-badge">Core</span>
+        <span class="ic-ko">중심이미지</span>
+      </div>
+      <div class="ic-body">
+        <span class="ic-icon">🐴</span>
+        <div class="ic-era">19세기 · 마차 문화</div>
+        <div class="ic-name">진흙 방지 보호판</div>
+        <div class="ic-desc">
+          달리는 말 발굽이 튀기는 진흙·돌을 막아주던 마차 앞쪽 판자. 단어가 처음 생겨난 원초적 물리 이미지.<br><br>
+          · 기능: 차단·보호<br>
+          · 위치: 운동체(말) 바로 앞<br>
+          · 사용자: 마부·탑승객
+        </div>
+        <div class="ic-fml">f(마차문화) × X<br>= 물리적 차단판</div>
+      </div>
+    </div>
+    <!-- 유추 -->
+    <div class="img-card" data-t="analog">
+      <div class="ic-head">
+        <span class="ic-badge">Analog</span>
+        <span class="ic-ko">유추이미지</span>
+      </div>
+      <div class="ic-body">
+        <span class="ic-icon">🚗</span>
+        <div class="ic-era">20세기 초 · 자동차 문화</div>
+        <div class="ic-name">운전석 계기판</div>
+        <div class="ic-desc">
+          마차 판의 위치·구조 그대로 자동차 운전석에 이식. 속도·연료·엔진 상태를 실시간 표시.<br><br>
+          · 기능: 상태 표시(모니터링)<br>
+          · 위치: 운동체(엔진) 앞<br>
+          · 사용자: 운전자
+        </div>
+        <div class="ic-fml">f(자동차문화) × X<br>= 차량 상태 표시판</div>
+      </div>
+    </div>
+    <!-- 확장 -->
+    <div class="img-card" data-t="extend">
+      <div class="ic-head">
+        <span class="ic-badge">Extended</span>
+        <span class="ic-ko">확장이미지</span>
+      </div>
+      <div class="ic-body">
+        <span class="ic-icon">🖥️</span>
+        <div class="ic-era">21세기 · IT·경영 문화</div>
+        <div class="ic-name">통합 데이터 화면</div>
+        <div class="ic-desc">
+          DBMS·ERP·재무·생산 데이터를 시각화하여 한눈에 파악. '계기판을 보며 방향을 잡는' 비유를 그대로 차용.<br><br>
+          · 기능: 데이터 시각화·요약<br>
+          · 위치: 운동체(기업시스템) 앞<br>
+          · 사용자: 경영자·실무자
+        </div>
+        <div class="ic-fml">f(IT·경영문화) × X<br>= 데이터 현황 표시 화면</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 한국어 의미 변천 띠 -->
+  <div class="ko-flow-wrap" style="position:relative;">
+    <!-- 변천 화살표 -->
+    <div class="ko-arrow a1">⟶</div>
+    <div class="ko-arrow a2">⟶</div>
+
+    <div class="ko-flow">
+      <!-- 중심: 달릴 때 막아주는 판 -->
+      <div class="ko-cell" data-t="core">
+        <div class="ko-lbl">중심이미지 · 한국어로 풀면</div>
+        <div class="ko-phrase">달릴 때<br>막아주는 판</div>
+        <div class="ko-sub">
+          말이 달릴 때(dash)<br>
+          진흙을 막아주는(board) 판<br>
+          → 달림 + 차단 + 판
+        </div>
+      </div>
+      <!-- 유추: 계기판 -->
+      <div class="ko-cell" data-t="analog">
+        <div class="ko-lbl">유추이미지 · 한국어로 풀면</div>
+        <div class="ko-phrase">달리는 차의<br>계기판</div>
+        <div class="ko-sub">
+          자동차(달리는 것) 앞에<br>
+          속도·연료를 보여주는 판<br>
+          → 달림 + 상태표시 + 판
+        </div>
+      </div>
+      <!-- 확장: 상황판 -->
+      <div class="ko-cell" data-t="extend">
+        <div class="ko-lbl">확장이미지 · 한국어로 풀면</div>
+        <div class="ko-phrase">전체를 한눈에<br>보는 상황판</div>
+        <div class="ko-sub">
+          기업·프로젝트(움직이는 것) 앞<br>
+          전체 현황을 보여주는 화면<br>
+          → 달림 + 통합파악 + 판
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 한국어 변천 흐름 요약 한 줄 -->
+  <div style="background:var(--surface); border:1px solid var(--border); border-top:none; padding:16px 24px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+    <span style="font-size:9px; letter-spacing:4px; color:var(--label); flex-shrink:0;">한국어 변천 요약</span>
+    <span style="font-size:15px; color:var(--c1);">달릴 때 막아주는 판</span>
+    <span style="color:var(--muted); font-size:14px;">→</span>
+    <span style="font-size:15px; color:var(--c2);">계기판</span>
+    <span style="color:var(--muted); font-size:14px;">→</span>
+    <span style="font-size:15px; color:var(--c3);">상황판</span>
+    <span style="margin-left:auto; font-size:10px; color:var(--label);">X(판) 유지 · f(맥락) 변환</span>
+  </div>
+
+</div><!-- /.sec -->
+
+<!-- ⑤ 맥락 변환 -->
+<div class="sec">
+  <div class="sec-title">[ 2 ] 사회·문화 맥락별 함수 변환 — f(context) × X</div>
+  <div class="ctx-grid">
+
+    <div class="ctx-card" data-e="1">
+      <div class="ctx-left">
+        <div class="ctx-tag">f₁ · 중심이미지</div>
+        <div class="ctx-name">마차 문화 · 19세기</div>
+        <div class="ctx-sub">Horse Carriage</div>
+      </div>
+      <div class="ctx-right">
+        <div class="ctx-fml">f₁(마차문화) × <span>X(직관파악판)</span> →</div>
+        <div class="ctx-rlbl">RESULT</div>
+        <div class="ctx-rval">달릴 때 막아주는 판 (진흙 방지판)</div>
+        <div class="ctx-rdesc">달리는 말 발굽의 진흙·돌을 막아주는 마차 앞 판자. 탑승자 보호 목적으로 '차단'이 핵심 기능. 단어 어원상 가장 원초적 의미.</div>
+      </div>
+    </div>
+
+    <div class="ctx-card" data-e="2">
+      <div class="ctx-left">
+        <div class="ctx-tag">f₂ · 유추이미지</div>
+        <div class="ctx-name">자동차 문화 · 20세기</div>
+        <div class="ctx-sub">Automobile</div>
+      </div>
+      <div class="ctx-right">
+        <div class="ctx-fml">f₂(자동차문화) × <span>X(직관파악판)</span> →</div>
+        <div class="ctx-rlbl">RESULT</div>
+        <div class="ctx-rval">계기판 (운전석 상태 표시판)</div>
+        <div class="ctx-rdesc">마차 판의 위치 그대로 자동차 운전석에 이식. '차단'이 '상태 표시'로 전환됨. 달리는 차 앞 → 달리는 차 상태 표시판.</div>
+      </div>
+    </div>
+
+    <div class="ctx-card" data-e="3">
+      <div class="ctx-left">
+        <div class="ctx-tag">f₃ · 확장이미지</div>
+        <div class="ctx-name">IT·경영 문화 · 21세기</div>
+        <div class="ctx-sub">IT / Business</div>
+      </div>
+      <div class="ctx-right">
+        <div class="ctx-fml">f₃(IT·경영문화) × <span>X(직관파악판)</span> →</div>
+        <div class="ctx-rlbl">RESULT</div>
+        <div class="ctx-rval">상황판 (통합 데이터 모니터링 화면)</div>
+        <div class="ctx-rdesc">DBMS·ERP·재무 등 전사 데이터를 한눈에 파악하는 화면. 움직이는 프로젝트·기업 앞 전체 상황판. '계기판 보며 방향 잡기' 비유 그대로 계승.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ⑥ 공통 패턴 -->
+<div class="pattern-block">
+  <div class="tag">COMMON PATTERN — 공통 핵심 이미지</div>
+  <div class="pt-text">
+    운동하는 시스템(말·자동차·기업) 앞에 위치하여<br>
+    그 현재 상태를 직관적으로 보여주는 표면
+  </div>
+  <div class="pt-note">
+    마차 → 자동차 → IT·경영, 세 시대 모두 '무언가가 달리거나 작동하는 것 앞의 판'이라는 이미지를 공유한다.<br>
+    한국어로 풀면 <strong style="color:var(--dk-gold);">달릴 때 막아주는 판 → 계기판 → 상황판</strong> 으로 변천하지만,<br>
+    맥락 f가 바뀌어도 핵심 이미지 X(판)는 그대로 유지된다 — 이것이 F(X)Voca의 핵심 원리.
+  </div>
+</div>
+
+<!-- ⑦ 구별개념 -->
+<div class="sec">
+  <div class="sec-title">[ 3 ] 구별 개념 — 혼동하기 쉬운 유사 용어</div>
+  <div class="dis-grid">
+    <div class="dis-item">
+      <div class="dis-vs">dashboard vs.</div>
+      <div class="dis-en">Report</div>
+      <div class="dis-ko">보고서</div>
+      <div class="dis-diff">보고서는 과거 데이터를 정리한 정적(靜) 문서. 대시보드는 현재 상태를 실시간 시각화하는 동적(動) 화면.<br>→ 핵심 차이: 시제(時制)</div>
+    </div>
+    <div class="dis-item">
+      <div class="dis-vs">dashboard vs.</div>
+      <div class="dis-en">Monitor</div>
+      <div class="dis-ko">모니터·관제 화면</div>
+      <div class="dis-diff">모니터는 단순 데이터 표시. 대시보드는 의사결정용으로 가공·요약, KPI 중심 배치.<br>→ 핵심 차이: 가공·요약 여부</div>
+    </div>
+    <div class="dis-item">
+      <div class="dis-vs">dashboard vs.</div>
+      <div class="dis-en">EIS</div>
+      <div class="dis-ko">경영정보시스템</div>
+      <div class="dis-diff">EIS는 데이터 수집·처리·저장·표시 시스템 전체. 대시보드는 EIS의 최종 출력 화면 레이어.<br>→ 핵심 차이: 범위(시스템 전체 vs. 화면)</div>
+    </div>
+    <div class="dis-item">
+      <div class="dis-vs">dashboard vs.</div>
+      <div class="dis-en">BI Tool</div>
+      <div class="dis-ko">BI 솔루션</div>
+      <div class="dis-diff">BI(Business Intelligence)는 데이터 분석 기술·도구 전반. 대시보드는 BI 결과물을 보여주는 시각화 인터페이스.<br>→ 핵심 차이: 도구 vs. 결과물 화면</div>
+    </div>
+  </div>
+</div>
+
+<!-- ⑧ 활용 유형 -->
+<div class="sec">
+  <div class="sec-title">[ 4 ] 현재 활용 유형 — 확장이미지(상황판) 하위 분류</div>
+  <div class="use-grid">
+    <div class="use-item">
+      <div class="use-num">01 /</div>
+      <div class="use-ko">BI 대시보드</div>
+      <div class="use-en">Business Intelligence Dashboard</div>
+      <div class="use-desc">ERP·DBMS 데이터를 분석하여 경영진 의사결정을 지원. Tableau, Power BI 등이 대표 도구.</div>
+    </div>
+    <div class="use-item">
+      <div class="use-num">02 /</div>
+      <div class="use-ko">통합 모니터링 시스템</div>
+      <div class="use-en">Integrated Monitoring System</div>
+      <div class="use-desc">서버·네트워크·DB 상태를 IT 인프라 관점에서 한 화면에 통합 표시.</div>
+    </div>
+    <div class="use-item">
+      <div class="use-num">03 /</div>
+      <div class="use-ko">경영정보시스템</div>
+      <div class="use-en">EIS · Executive Information System</div>
+      <div class="use-desc">임원·경영자가 매출·재고·자금 주요 지표를 실시간 파악하는 전통적 시스템.</div>
+    </div>
+    <div class="use-item">
+      <div class="use-num">04 /</div>
+      <div class="use-ko">관제 센터 / 워룸</div>
+      <div class="use-en">War Room · Control Center</div>
+      <div class="use-desc">긴급 상황 대응 목적의 실시간 전사 현황 화면. 보안·제조 분야에서 주로 사용.</div>
+    </div>
+  </div>
+</div>
+
+<div class="page-footer">F(X)Voca · Dashboard · © 유정우</div>
+
+</div><!-- /.wrap -->
+</body>
+</html>
