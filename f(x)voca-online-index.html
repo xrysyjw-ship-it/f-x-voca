@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F(X)Voca — 어휘 목록</title>
+<style>
+  :root {
+    --bg: #f4f1ec;
+    --surface: #ffffff;
+    --border: #c8c2b6;
+    --text: #1c1a16;
+    --muted: #5a5650;
+    --label: #888078;
+    --accent1: #9a6200;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'KoPub돋움체', 'KoPubDotum', 'KoPub Dotum', 'Malgun Gothic', sans-serif;
+    font-weight: 700;
+    min-height: 100vh;
+    padding: 60px 20px;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { max-width: 760px; margin: 0 auto; position: relative; z-index: 1; }
+
+  .header {
+    text-align: center;
+    padding-bottom: 40px;
+    margin-bottom: 52px;
+    border-bottom: 2px solid var(--text);
+  }
+
+  .series-label {
+    font-size: 10px; letter-spacing: 5px; color: var(--muted);
+    text-transform: uppercase; margin-bottom: 20px;
+  }
+
+  .main-title {
+    font-size: 56px; color: var(--text);
+    line-height: 1; letter-spacing: -2px; margin-bottom: 14px;
+  }
+
+  .formula {
+    font-size: 13px; color: var(--muted); letter-spacing: 1px;
+    background: var(--surface); border: 1px solid var(--border);
+    display: inline-block; padding: 8px 20px; margin-top: 4px;
+  }
+
+  .section-title {
+    font-size: 9px; letter-spacing: 5px; color: var(--label);
+    text-transform: uppercase; margin-bottom: 20px;
+    padding-bottom: 10px; border-bottom: 1px solid var(--border);
+  }
+
+  .word-list { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--border); }
+
+  .word-item {
+    display: grid;
+    grid-template-columns: 60px 200px 1fr 80px;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.15s;
+    padding: 0;
+  }
+
+  .word-item:last-child { border-bottom: none; }
+  .word-item:hover { background: #fdf3e0; }
+
+  .word-num {
+    font-size: 10px; color: var(--label); letter-spacing: 2px;
+    text-align: center; padding: 22px 0; border-right: 1px solid var(--border);
+  }
+
+  .word-en {
+    font-size: 22px; color: var(--text);
+    padding: 22px 20px; border-right: 1px solid var(--border);
+  }
+
+  .word-core {
+    font-size: 11px; color: var(--muted);
+    padding: 22px 20px; line-height: 1.5; border-right: 1px solid var(--border);
+  }
+
+  .word-core span {
+    display: block; font-size: 9px; letter-spacing: 2px;
+    color: var(--label); margin-bottom: 5px;
+  }
+
+  .word-arrow {
+    text-align: center; font-size: 16px; color: var(--accent1); padding: 22px 0;
+  }
+
+  .coming-soon {
+    text-align: center; padding: 32px;
+    font-size: 11px; color: var(--label); letter-spacing: 3px;
+    background: var(--surface); border-top: 1px solid var(--border);
+  }
+
+  .footer {
+    text-align: center; margin-top: 52px; padding-top: 24px;
+    border-top: 2px solid var(--text);
+    font-size: 10px; color: var(--muted); letter-spacing: 4px;
+  }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .container > * { animation: fadeUp 0.5s ease forwards; opacity: 0; }
+  .container > *:nth-child(1) { animation-delay: 0.05s; }
+  .container > *:nth-child(2) { animation-delay: 0.15s; }
+  .container > *:nth-child(3) { animation-delay: 0.25s; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="series-label">Vocabulary as Function</div>
+    <div class="main-title">F(X)Voca</div>
+    <div class="formula">F(X) = f(사회·문화 맥락) × X(핵심 이미지)</div>
+  </div>
+
+  <div class="section-title">수록 어휘 — Word Index</div>
+
+  <div class="word-list">
+    <a class="word-item" href="./words/dashboard/index.html">
+      <div class="word-num">001</div>
+      <div class="word-en">Dashboard</div>
+      <div class="word-core">
+        <span>X — CORE IMAGE</span>
+        운동하는 시스템 앞에 놓인 직관 파악 판(板)
+      </div>
+      <div class="word-arrow">→</div>
+    </a>
+    <div class="word-item" style="cursor:default; opacity:0.4; pointer-events:none;">
+      <div class="word-num">002</div>
+      <div class="word-en" style="font-size:14px; color:var(--label);">추가 예정</div>
+      <div class="word-core"></div>
+      <div class="word-arrow"></div>
+    </div>
+  </div>
+
+  <div class="footer">F(X)Voca · © 유정우</div>
+
+</div>
+</body>
+</html>
